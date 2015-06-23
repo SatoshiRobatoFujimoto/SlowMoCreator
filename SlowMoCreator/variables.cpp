@@ -9,7 +9,7 @@ using namespace System;
 using namespace cv;
 using namespace std;
 
- 	 
+
 int frames_number = 0;
 int fps = 0;
 int frame_rate =0;
@@ -17,10 +17,10 @@ int frame_width = 640;
 int frame_height = 480;
 VideoWriter outputVideo;
 cv::Size resolution;
-string name = "outputVideo.avi";
+string name;
 Mat source;
-string videoToConvert;
-
+string videoToOpenNameStr;	 // The Std::string name holder
+string videoToSaveNameStr;	 // The Std::string name holder where to save the 
 
 
 

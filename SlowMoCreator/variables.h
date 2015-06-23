@@ -19,7 +19,8 @@ extern VideoWriter outputVideo;
 extern cv::Size resolution;
 extern string name;
 extern cv::Mat source;
-extern string videoToConvert;
+extern string videoToOpenNameStr;
+extern string videoToSaveNameStr;
 
 
 

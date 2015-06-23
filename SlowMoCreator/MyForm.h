@@ -31,6 +31,7 @@ by: Zoubir AMEUR
 #include <string>
 #include <iostream>
 #include <convert_system_string.cpp>
+#include <vcclr.h>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -51,12 +52,8 @@ using namespace System::IO::Ports;
 using namespace System::IO;
 using System::IO::File;
 using System::Runtime::InteropServices::Marshal;
+using namespace Runtime::InteropServices;
  
- 
- 
-
-
-
 
 namespace SlowMoCreator {
 
@@ -71,7 +68,7 @@ namespace SlowMoCreator {
 
 
 	/// <summary>
-	/// Summary for MyForm
+	/// (c)  Zoubir AMEUR
 	/// </summary>
 	public ref class MyForm : public System::Windows::Forms::Form
 	{
@@ -128,6 +125,12 @@ namespace SlowMoCreator {
 	private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusLabel1;
 	private: System::Windows::Forms::OpenFileDialog^  openVideoDialog;
 	private: System::Windows::Forms::RichTextBox^  richTextBox1;
+	private: System::Windows::Forms::SaveFileDialog^  saveVideoDialog;
+
+	private: System::Windows::Forms::Button^  saveVideo_button;
+	private: System::Windows::Forms::RichTextBox^  richTextBox2;
+
+
 
 	private: System::ComponentModel::IContainer^  components;
 
@@ -135,7 +138,7 @@ namespace SlowMoCreator {
 #pragma endregion
 
 
-	protected:
+	 
 
 	private:
 		/// <summary>
@@ -177,6 +180,9 @@ namespace SlowMoCreator {
 			this->toolStripStatusLabel1 = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->openVideoDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->richTextBox1 = (gcnew System::Windows::Forms::RichTextBox());
+			this->saveVideoDialog = (gcnew System::Windows::Forms::SaveFileDialog());
+			this->saveVideo_button = (gcnew System::Windows::Forms::Button());
+			this->richTextBox2 = (gcnew System::Windows::Forms::RichTextBox());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			this->statusStrip1->SuspendLayout();
@@ -184,6 +190,7 @@ namespace SlowMoCreator {
 			// 
 			// CreateSlowMo_button
 			// 
+			this->CreateSlowMo_button->Enabled = false;
 			this->CreateSlowMo_button->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"CreateSlowMo_button.Image")));
 			this->CreateSlowMo_button->ImageAlign = System::Drawing::ContentAlignment::MiddleLeft;
 			this->CreateSlowMo_button->Location = System::Drawing::Point(29, 295);
@@ -352,7 +359,7 @@ namespace SlowMoCreator {
 			// 
 			// open_button
 			// 
-			this->open_button->Location = System::Drawing::Point(277, 295);
+			this->open_button->Location = System::Drawing::Point(338, 295);
 			this->open_button->Name = L"open_button";
 			this->open_button->Size = System::Drawing::Size(132, 42);
 			this->open_button->TabIndex = 16;
@@ -378,7 +385,8 @@ namespace SlowMoCreator {
 			// openVideoDialog
 			// 
 			this->openVideoDialog->FileName = L"GoPro.mp4";
-			this->openVideoDialog->Filter = L"\"Fichiers d\'aquisition .mp4|*.mp4|All Files|*.*\"";
+			this->openVideoDialog->Filter = L"\"Video GoPro .mp4|*.mp4|All Files|*.*\"";
+			this->openVideoDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openVideoDialog_FileOk);
 			// 
 			// richTextBox1
 			// 
@@ -388,11 +396,38 @@ namespace SlowMoCreator {
 			this->richTextBox1->TabIndex = 18;
 			this->richTextBox1->Text = L"";
 			// 
+			// saveVideoDialog
+			// 
+			this->saveVideoDialog->DefaultExt = L"avi";
+			this->saveVideoDialog->FileName = L"MySlowM";
+			this->saveVideoDialog->Title = L"Save SlowMo Video";
+			// 
+			// saveVideo_button
+			// 
+			this->saveVideo_button->Enabled = false;
+			this->saveVideo_button->Location = System::Drawing::Point(190, 295);
+			this->saveVideo_button->Name = L"saveVideo_button";
+			this->saveVideo_button->Size = System::Drawing::Size(117, 42);
+			this->saveVideo_button->TabIndex = 19;
+			this->saveVideo_button->Text = L"Destination File";
+			this->saveVideo_button->UseVisualStyleBackColor = true;
+			this->saveVideo_button->Click += gcnew System::EventHandler(this, &MyForm::saveFile_button_Click);
+			// 
+			// richTextBox2
+			// 
+			this->richTextBox2->Location = System::Drawing::Point(487, 230);
+			this->richTextBox2->Name = L"richTextBox2";
+			this->richTextBox2->Size = System::Drawing::Size(166, 29);
+			this->richTextBox2->TabIndex = 20;
+			this->richTextBox2->Text = L"";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
 			this->ClientSize = System::Drawing::Size(746, 488);
+			this->Controls->Add(this->richTextBox2);
+			this->Controls->Add(this->saveVideo_button);
 			this->Controls->Add(this->progressBar1);
 			this->Controls->Add(this->richTextBox1);
 			this->Controls->Add(this->statusStrip1);
@@ -420,18 +455,17 @@ namespace SlowMoCreator {
 		// Global Variables
 
 		System::String^  videoToOpenName;
+		System::String^  videoToSaveName;
 		
 		//std::string vidName ;
 
 	  
 #pragma endregion
 
-
+		  //  A method to Convert from String^ to std::string
 
 		void MarshalString(System::String ^ s, string& os) {
-			using namespace Runtime::InteropServices;
-			const char* chars =
-				(const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
+			const char* chars =	(const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
 			os = chars;
 			Marshal::FreeHGlobal(IntPtr((void*)chars));
 		}
@@ -440,53 +474,46 @@ namespace SlowMoCreator {
 
 	private: System::Void CreateSlowMo_Click(System::Object^  sender, System::EventArgs^  e) {
 
-	   	
-		std::string videoToOpenNameStr;
-		MarshalString(videoToOpenName, videoToOpenNameStr);
-	    //VideoCapture inputVideo("GoPro.mp4");
 
-		VideoCapture inputVideo(videoToOpenNameStr);
-		 
-
-
-		if (!inputVideo.isOpened()) {
-			MessageBox::Show(L"Error video name"); 
-
-		}
-
-		fps =   int(inputVideo.get(CAP_PROP_FPS)); // get the frame rate of the vodep
-		frames_number = int(inputVideo.get(CAP_PROP_FRAME_COUNT));	   // get the total frames in the video
-	    resolution = cv::Size((int)inputVideo.get(CAP_PROP_FRAME_WIDTH), (int)inputVideo.get(CAP_PROP_FRAME_HEIGHT)); // get the resolution
-	 	
-		this->progressBar1->Maximum = frames_number;
-		
-	
-		/*
-		   System::String^ totalFrames_text;  
-		System::String^  fps_text;
-		System::String^  height_text;
-		System::String^  width_text;
-  		totalFrames_text  = Convert::ToString(frames_number);	 
-		fps_text = Convert::ToString(fps);
-		height_text  = Convert::ToString(resolution.height);
-		width_text  = Convert::ToString(resolution.width);
-		
-		
-		*/
-		
-	    
 		
 	   
-		 
+		// Convert the videoToOpen name from the dialog in Strong^ format and convert it to std::string	to be read by cv:: methods
+		//MarshalString(videoToOpenName, videoToOpenNameStr);	  
+		
+		VideoCapture inputVideo(videoToOpenNameStr);
+		if (!inputVideo.isOpened()) {
+			MessageBox::Show(L"Error video name"); 
+		}
 
-		outputVideo.open(name, CV_FOURCC('M', 'J', 'P', 'G'), 25, resolution, true);
+		//-------------------	Naming the output video
+	 
+		//string::size_type pAt = videoToOpenNameStr.find_last_of('.');                  // Find extension point
+		//const string NAME = videoToOpenNameStr.substr(0, pAt) + argv[2][0] + ".avi";   // Form the new name with container
+		// ------------------ -		  
+
+		//string::size_type pAt = videoToOpenNameStr.find_last_of('.'); // find the extension point
+	//	name = videoToOpenNameStr.substr(0, pAt) + "GoPro" + ".avi";  // get the name to convert
+
+			
+		
+		
+		fps =   int(inputVideo.get(CAP_PROP_FPS)); // get the frame rate of the video
+		frames_number = int(inputVideo.get(CAP_PROP_FRAME_COUNT));	   // get the total frames in the video
+	    resolution = cv::Size((int)inputVideo.get(CAP_PROP_FRAME_WIDTH), (int)inputVideo.get(CAP_PROP_FRAME_HEIGHT)); // get the resolution
+	
+		this->progressBar1->Maximum = frames_number;	  // Initilize the progress bar's maximum to the number of frames
+		
+		
+	//	name = "outputVideo.avi";
+			
+		outputVideo.open(name, CV_FOURCC('M', 'J', 'P', 'G'), 25, resolution, true);  // Create an output video named "Name
 
 
 		if (outputVideo.isOpened()) {
 
 			CreateSlowMo_button->Enabled = false;
 			this->toolStripStatusLabel1->Text = "Creating SloMo";
-			  Thread::Sleep (1000);
+			   
 			
 			// Converting from 240fps to 25fps //////////////////////////
 
@@ -518,10 +545,7 @@ namespace SlowMoCreator {
 
 	}
 
-				   
-
-
-
+		 
 
 #pragma region  "Display Video data on the interface " 
 
@@ -540,9 +564,7 @@ private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e
 
 #pragma endregion
 
-	
-
-
+		   
 
 #pragma region  "Launch About Form " 
 private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, System::EventArgs^  e) {
@@ -554,29 +576,89 @@ private: System::Void aboutToolStripMenuItem_Click(System::Object^  sender, Syst
 }
 
 
-#pragma endregion	
+#pragma endregion									 
 
 
 
 private: System::Void open_button_Click(System::Object^  sender, System::EventArgs^  e) {
 
-
-
-
+		  
 	this->openVideoDialog->RestoreDirectory = true;		 // keep the dialog on the last opened directory
 	this->openVideoDialog->Title = "Open Video File...";   // Rename the Open Video Dialog 
 	Windows::Forms::DialogResult result = this->openVideoDialog->ShowDialog();	   // Show the dialog and get the reasult 
-	this->richTextBox1->Text = openVideoDialog->FileName;
-
+	this->richTextBox1->Text = openVideoDialog->FileName;  
 	videoToOpenName = openVideoDialog->FileName;
-	 
+
+	// Convert the videoToOpen name from the dialog in Strong^ format and convert it to std::string	to be read by cv:: methods
+	MarshalString(videoToOpenName, videoToOpenNameStr);
+
+    // Verify if the video is MP4
+	string::size_type pointAt = videoToOpenNameStr.find_last_of('.'); // find the extension point
+	//std::string extension = videoToOpenNameStr.substr(pointAt, (videoToOpenNameStr.length()-1)) + "GoPro" + ".avi";
+	std::string extension = videoToOpenNameStr.substr(pointAt, (videoToOpenNameStr.length() - 1));
+
+	System::String^ extensionStr = gcnew System::String(extension.c_str());  // Convert the std:string to String^ to display it
 
 	 
+	this->richTextBox2->Text = extensionStr;
+
+	if (extension != ".mp4" && extension != ".MP4"){
+		MessageBox::Show(L"Please, select an 'MP4' video");
+	}
+	else {
+		
+		this->saveVideo_button->Enabled = true;
+	}
+	
 
 
+	//string::size_type pointAt = videoToOpenNameStr.find_last_of('.'); // find the extension point
+	 
+
+	//name = videoToOpenNameStr.substr(pointAt, pAt) + "GoPro" + ".avi";
+
+}
+
+
+private: System::Void openVideoDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
+
+}
+
+
+
+private: System::Void saveFile_button_Click(System::Object^  sender, System::EventArgs^  e) {
+
+	MessageBox::Show(L"Please Choose a Path to save the video");
+	this->saveVideoDialog->Title = "Select where to save your SlowMo video";
+	System::Windows::Forms::DialogResult result = this->saveVideoDialog->ShowDialog();
+
+	if (result == System::Windows::Forms::DialogResult::OK)
+	{
+		videoToSaveName = saveVideoDialog->FileName;
+		Thread::Sleep(800);
+		if (File::Exists(videoToSaveName))  {
+			MessageBox::Show(L"Error! A file with the same name exists. Please, change the file's name");
+		}
+		else {
+
+			MarshalString(videoToSaveName, name);
+			this->CreateSlowMo_button->Enabled = true;
+		}
+
+
+	}
+
+
+	 
 
 
 
 }
+
+
+
+
+
+
 };
 }
