@@ -10,7 +10,7 @@ by: Zoubir AMEUR
 
 #include "AboutForm.h"
 
-#include "stdlib.h"
+
 #include "variables.h"
 #include "stdafx.h"
 #include "math.h"
@@ -30,6 +30,7 @@ by: Zoubir AMEUR
 #include <String.h>
 #include <string>
 #include <iostream>
+#include <convert_system_string.cpp>
 
 #include <opencv2/highgui/highgui.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -39,7 +40,7 @@ using namespace Threading ;
 using namespace System;
 using namespace cv;
 using namespace std;
-using System::IO::File;
+
 using namespace System::Reflection;
 using namespace System::ComponentModel;
 using namespace System::Collections;
@@ -48,7 +49,13 @@ using namespace System::Data;
 using namespace System::Drawing;
 using namespace System::IO::Ports;
 using namespace System::IO;
+using System::IO::File;
+using System::Runtime::InteropServices::Marshal;
  
+ 
+ 
+
+
 
 
 namespace SlowMoCreator {
@@ -88,8 +95,12 @@ namespace SlowMoCreator {
 				delete components;
 			}
 		}
+
+#pragma region  "Declaring Controls " 
+
+
 	private: System::Windows::Forms::Button^  CreateSlowMo_button;
-	protected:
+	 
 
 	private: System::Windows::Forms::Label^  fps_Label;
 
@@ -117,10 +128,11 @@ namespace SlowMoCreator {
 	private: System::Windows::Forms::ToolStripStatusLabel^  toolStripStatusLabel1;
 	private: System::Windows::Forms::OpenFileDialog^  openVideoDialog;
 	private: System::Windows::Forms::RichTextBox^  richTextBox1;
-	private: System::Windows::Forms::RichTextBox^  richTextBox2;
+
 	private: System::ComponentModel::IContainer^  components;
 
-
+		 
+#pragma endregion
 
 
 	protected:
@@ -165,7 +177,6 @@ namespace SlowMoCreator {
 			this->toolStripStatusLabel1 = (gcnew System::Windows::Forms::ToolStripStatusLabel());
 			this->openVideoDialog = (gcnew System::Windows::Forms::OpenFileDialog());
 			this->richTextBox1 = (gcnew System::Windows::Forms::RichTextBox());
-			this->richTextBox2 = (gcnew System::Windows::Forms::RichTextBox());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			this->statusStrip1->SuspendLayout();
@@ -256,7 +267,7 @@ namespace SlowMoCreator {
 			});
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(715, 24);
+			this->menuStrip1->Size = System::Drawing::Size(746, 24);
 			this->menuStrip1->TabIndex = 12;
 			this->menuStrip1->Text = L"menuStrip1";
 			// 
@@ -334,9 +345,9 @@ namespace SlowMoCreator {
 			// 
 			// progressBar1
 			// 
-			this->progressBar1->Location = System::Drawing::Point(49, 446);
+			this->progressBar1->Location = System::Drawing::Point(50, 470);
 			this->progressBar1->Name = L"progressBar1";
-			this->progressBar1->Size = System::Drawing::Size(463, 18);
+			this->progressBar1->Size = System::Drawing::Size(684, 18);
 			this->progressBar1->TabIndex = 15;
 			// 
 			// open_button
@@ -352,9 +363,9 @@ namespace SlowMoCreator {
 			// statusStrip1
 			// 
 			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolStripStatusLabel1 });
-			this->statusStrip1->Location = System::Drawing::Point(0, 446);
+			this->statusStrip1->Location = System::Drawing::Point(0, 466);
 			this->statusStrip1->Name = L"statusStrip1";
-			this->statusStrip1->Size = System::Drawing::Size(715, 22);
+			this->statusStrip1->Size = System::Drawing::Size(746, 22);
 			this->statusStrip1->TabIndex = 17;
 			this->statusStrip1->Text = L"statusStrip1";
 			// 
@@ -367,7 +378,7 @@ namespace SlowMoCreator {
 			// openVideoDialog
 			// 
 			this->openVideoDialog->FileName = L"GoPro.mp4";
-			this->openVideoDialog->Filter = L"\"Fichiers d\'aquisition .MP4|*.mp4\"";
+			this->openVideoDialog->Filter = L"\"Fichiers d\'aquisition .mp4|*.mp4|All Files|*.*\"";
 			// 
 			// richTextBox1
 			// 
@@ -377,24 +388,15 @@ namespace SlowMoCreator {
 			this->richTextBox1->TabIndex = 18;
 			this->richTextBox1->Text = L"";
 			// 
-			// richTextBox2
-			// 
-			this->richTextBox2->Location = System::Drawing::Point(29, 387);
-			this->richTextBox2->Name = L"richTextBox2";
-			this->richTextBox2->Size = System::Drawing::Size(454, 30);
-			this->richTextBox2->TabIndex = 19;
-			this->richTextBox2->Text = L"";
-			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(715, 468);
-			this->Controls->Add(this->richTextBox2);
+			this->ClientSize = System::Drawing::Size(746, 488);
+			this->Controls->Add(this->progressBar1);
 			this->Controls->Add(this->richTextBox1);
 			this->Controls->Add(this->statusStrip1);
 			this->Controls->Add(this->open_button);
-			this->Controls->Add(this->progressBar1);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->panel1);
 			this->Controls->Add(this->CreateSlowMo_button);
@@ -418,18 +420,35 @@ namespace SlowMoCreator {
 		// Global Variables
 
 		System::String^  videoToOpenName;
-
+		
 		//std::string vidName ;
 
-
-
+	  
 #pragma endregion
+
+
+
+		void MarshalString(System::String ^ s, string& os) {
+			using namespace Runtime::InteropServices;
+			const char* chars =
+				(const char*)(Marshal::StringToHGlobalAnsi(s)).ToPointer();
+			os = chars;
+			Marshal::FreeHGlobal(IntPtr((void*)chars));
+		}
+
+
+
 	private: System::Void CreateSlowMo_Click(System::Object^  sender, System::EventArgs^  e) {
 
-		videoToOpenName = "GoPro.mp4";
+	   	
+		std::string videoToOpenNameStr;
+		MarshalString(videoToOpenName, videoToOpenNameStr);
+	    //VideoCapture inputVideo("GoPro.mp4");
+
+		VideoCapture inputVideo(videoToOpenNameStr);
+		 
 
 
-		VideoCapture inputVideo("GoPro.mp4");
 		if (!inputVideo.isOpened()) {
 			MessageBox::Show(L"Error video name"); 
 
@@ -522,7 +541,7 @@ private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e
 #pragma endregion
 
 	
-		 
+
 
 
 #pragma region  "Launch About Form " 
@@ -545,10 +564,8 @@ private: System::Void open_button_Click(System::Object^  sender, System::EventAr
 
 
 	this->openVideoDialog->RestoreDirectory = true;		 // keep the dialog on the last opened directory
-	this->openVideoDialog->Title = "Open Video File...";
-
+	this->openVideoDialog->Title = "Open Video File...";   // Rename the Open Video Dialog 
 	Windows::Forms::DialogResult result = this->openVideoDialog->ShowDialog();	   // Show the dialog and get the reasult 
-    
 	this->richTextBox1->Text = openVideoDialog->FileName;
 
 	videoToOpenName = openVideoDialog->FileName;
