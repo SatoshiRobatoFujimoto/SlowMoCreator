@@ -12,6 +12,7 @@ using namespace std;
    
 extern int frames_number;
 extern int fps;
+extern int fps_wanted;
 extern int frame_rate;
 extern int frame_width;
 extern int frame_height;
@@ -21,7 +22,11 @@ extern string name;
 extern cv::Mat source;
 extern string videoToOpenNameStr;
 extern string videoToSaveNameStr;
-
+extern bool videoOpen;
+extern bool cancel;
+extern cv::VideoCapture  inputVideo;
+extern int i ;
+extern int progress;
 
 
 

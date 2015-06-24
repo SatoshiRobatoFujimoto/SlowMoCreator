@@ -12,6 +12,7 @@ using namespace std;
 
 int frames_number = 0;
 int fps = 0;
+int fps_wanted = 25;
 int frame_rate =0;
 int frame_width = 640;
 int frame_height = 480;
@@ -21,6 +22,11 @@ string name;
 Mat source;
 string videoToOpenNameStr;	 // The Std::string name holder
 string videoToSaveNameStr;	 // The Std::string name holder where to save the 
+bool videoOpen = false;
+bool cancel = false;
+cv::VideoCapture  inputVideo;
+int i = 0;
+int progress =0;
 
 
 

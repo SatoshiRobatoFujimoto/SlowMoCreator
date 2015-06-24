@@ -129,6 +129,12 @@ namespace SlowMoCreator {
 
 	private: System::Windows::Forms::Button^  saveVideo_button;
 	private: System::Windows::Forms::RichTextBox^  richTextBox2;
+	private: System::Windows::Forms::TrackBar^  fps_trackBar;
+	private: System::Windows::Forms::Panel^  panel2;
+	private: System::Windows::Forms::Button^  cancel_button;
+	private: System::ComponentModel::BackgroundWorker^  backgroundWorker1;
+	private: System::Windows::Forms::RichTextBox^  richTextBox3;
+
 
 
 
@@ -183,9 +189,16 @@ namespace SlowMoCreator {
 			this->saveVideoDialog = (gcnew System::Windows::Forms::SaveFileDialog());
 			this->saveVideo_button = (gcnew System::Windows::Forms::Button());
 			this->richTextBox2 = (gcnew System::Windows::Forms::RichTextBox());
+			this->fps_trackBar = (gcnew System::Windows::Forms::TrackBar());
+			this->panel2 = (gcnew System::Windows::Forms::Panel());
+			this->cancel_button = (gcnew System::Windows::Forms::Button());
+			this->backgroundWorker1 = (gcnew System::ComponentModel::BackgroundWorker());
+			this->richTextBox3 = (gcnew System::Windows::Forms::RichTextBox());
 			this->menuStrip1->SuspendLayout();
 			this->panel1->SuspendLayout();
 			this->statusStrip1->SuspendLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fps_trackBar))->BeginInit();
+			this->panel2->SuspendLayout();
 			this->SuspendLayout();
 			// 
 			// CreateSlowMo_button
@@ -193,7 +206,7 @@ namespace SlowMoCreator {
 			this->CreateSlowMo_button->Enabled = false;
 			this->CreateSlowMo_button->Image = (cli::safe_cast<System::Drawing::Image^>(resources->GetObject(L"CreateSlowMo_button.Image")));
 			this->CreateSlowMo_button->ImageAlign = System::Drawing::ContentAlignment::MiddleLeft;
-			this->CreateSlowMo_button->Location = System::Drawing::Point(29, 295);
+			this->CreateSlowMo_button->Location = System::Drawing::Point(165, 311);
 			this->CreateSlowMo_button->Name = L"CreateSlowMo_button";
 			this->CreateSlowMo_button->Size = System::Drawing::Size(132, 42);
 			this->CreateSlowMo_button->TabIndex = 0;
@@ -207,9 +220,9 @@ namespace SlowMoCreator {
 			this->fps_Label->AutoSize = true;
 			this->fps_Label->Location = System::Drawing::Point(22, 28);
 			this->fps_Label->Name = L"fps_Label";
-			this->fps_Label->Size = System::Drawing::Size(61, 13);
+			this->fps_Label->Size = System::Drawing::Size(66, 13);
 			this->fps_Label->TabIndex = 1;
-			this->fps_Label->Text = L"Frame/sec:";
+			this->fps_Label->Text = L"Frames/sec:";
 			// 
 			// totalFrames_Label
 			// 
@@ -274,7 +287,7 @@ namespace SlowMoCreator {
 			});
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(746, 24);
+			this->menuStrip1->Size = System::Drawing::Size(856, 24);
 			this->menuStrip1->TabIndex = 12;
 			this->menuStrip1->Text = L"menuStrip1";
 			// 
@@ -336,7 +349,7 @@ namespace SlowMoCreator {
 			this->panel1->Controls->Add(this->height_textBox);
 			this->panel1->Controls->Add(this->totalFrames_textBox);
 			this->panel1->Controls->Add(this->width_textBox);
-			this->panel1->Location = System::Drawing::Point(239, 70);
+			this->panel1->Location = System::Drawing::Point(390, 77);
 			this->panel1->Name = L"panel1";
 			this->panel1->Size = System::Drawing::Size(218, 189);
 			this->panel1->TabIndex = 13;
@@ -344,7 +357,7 @@ namespace SlowMoCreator {
 			// label1
 			// 
 			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(253, 44);
+			this->label1->Location = System::Drawing::Point(404, 51);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(66, 13);
 			this->label1->TabIndex = 14;
@@ -352,14 +365,15 @@ namespace SlowMoCreator {
 			// 
 			// progressBar1
 			// 
-			this->progressBar1->Location = System::Drawing::Point(50, 470);
+			this->progressBar1->Location = System::Drawing::Point(27, 373);
 			this->progressBar1->Name = L"progressBar1";
-			this->progressBar1->Size = System::Drawing::Size(684, 18);
+			this->progressBar1->Size = System::Drawing::Size(562, 26);
+			this->progressBar1->Step = 1;
 			this->progressBar1->TabIndex = 15;
 			// 
 			// open_button
 			// 
-			this->open_button->Location = System::Drawing::Point(338, 295);
+			this->open_button->Location = System::Drawing::Point(457, 311);
 			this->open_button->Name = L"open_button";
 			this->open_button->Size = System::Drawing::Size(132, 42);
 			this->open_button->TabIndex = 16;
@@ -370,11 +384,11 @@ namespace SlowMoCreator {
 			// statusStrip1
 			// 
 			this->statusStrip1->Items->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(1) { this->toolStripStatusLabel1 });
-			this->statusStrip1->Location = System::Drawing::Point(0, 466);
+			this->statusStrip1->Location = System::Drawing::Point(0, 513);
 			this->statusStrip1->Name = L"statusStrip1";
-			this->statusStrip1->Size = System::Drawing::Size(746, 22);
+			this->statusStrip1->Size = System::Drawing::Size(856, 22);
 			this->statusStrip1->TabIndex = 17;
-			this->statusStrip1->Text = L"statusStrip1";
+			this->statusStrip1->Text = L"Ready";
 			// 
 			// toolStripStatusLabel1
 			// 
@@ -386,11 +400,10 @@ namespace SlowMoCreator {
 			// 
 			this->openVideoDialog->FileName = L"GoPro.mp4";
 			this->openVideoDialog->Filter = L"\"Video GoPro .mp4|*.mp4|All Files|*.*\"";
-			this->openVideoDialog->FileOk += gcnew System::ComponentModel::CancelEventHandler(this, &MyForm::openVideoDialog_FileOk);
 			// 
 			// richTextBox1
 			// 
-			this->richTextBox1->Location = System::Drawing::Point(29, 353);
+			this->richTextBox1->Location = System::Drawing::Point(361, 408);
 			this->richTextBox1->Name = L"richTextBox1";
 			this->richTextBox1->Size = System::Drawing::Size(454, 27);
 			this->richTextBox1->TabIndex = 18;
@@ -399,13 +412,13 @@ namespace SlowMoCreator {
 			// saveVideoDialog
 			// 
 			this->saveVideoDialog->DefaultExt = L"avi";
-			this->saveVideoDialog->FileName = L"MySlowM";
+			this->saveVideoDialog->FileName = L"MySlowMo";
 			this->saveVideoDialog->Title = L"Save SlowMo Video";
 			// 
 			// saveVideo_button
 			// 
 			this->saveVideo_button->Enabled = false;
-			this->saveVideo_button->Location = System::Drawing::Point(190, 295);
+			this->saveVideo_button->Location = System::Drawing::Point(316, 311);
 			this->saveVideo_button->Name = L"saveVideo_button";
 			this->saveVideo_button->Size = System::Drawing::Size(117, 42);
 			this->saveVideo_button->TabIndex = 19;
@@ -415,17 +428,66 @@ namespace SlowMoCreator {
 			// 
 			// richTextBox2
 			// 
-			this->richTextBox2->Location = System::Drawing::Point(487, 230);
+			this->richTextBox2->Location = System::Drawing::Point(649, 373);
 			this->richTextBox2->Name = L"richTextBox2";
 			this->richTextBox2->Size = System::Drawing::Size(166, 29);
 			this->richTextBox2->TabIndex = 20;
 			this->richTextBox2->Text = L"";
 			// 
+			// fps_trackBar
+			// 
+			this->fps_trackBar->Enabled = false;
+			this->fps_trackBar->Location = System::Drawing::Point(29, 43);
+			this->fps_trackBar->Maximum = 25;
+			this->fps_trackBar->Minimum = 10;
+			this->fps_trackBar->Name = L"fps_trackBar";
+			this->fps_trackBar->Size = System::Drawing::Size(197, 45);
+			this->fps_trackBar->TabIndex = 21;
+			this->fps_trackBar->Value = 25;
+			// 
+			// panel2
+			// 
+			this->panel2->Controls->Add(this->fps_trackBar);
+			this->panel2->Location = System::Drawing::Point(71, 94);
+			this->panel2->Name = L"panel2";
+			this->panel2->Size = System::Drawing::Size(257, 100);
+			this->panel2->TabIndex = 22;
+			// 
+			// cancel_button
+			// 
+			this->cancel_button->Enabled = false;
+			this->cancel_button->Location = System::Drawing::Point(27, 311);
+			this->cancel_button->Name = L"cancel_button";
+			this->cancel_button->Size = System::Drawing::Size(132, 42);
+			this->cancel_button->TabIndex = 23;
+			this->cancel_button->Text = L"Cancel";
+			this->cancel_button->UseVisualStyleBackColor = true;
+			this->cancel_button->Click += gcnew System::EventHandler(this, &MyForm::cancel_button_Click);
+			// 
+			// backgroundWorker1
+			// 
+			this->backgroundWorker1->WorkerReportsProgress = true;
+			this->backgroundWorker1->WorkerSupportsCancellation = true;
+			this->backgroundWorker1->DoWork += gcnew System::ComponentModel::DoWorkEventHandler(this, &MyForm::backgroundWorker1_DoWork);
+			this->backgroundWorker1->ProgressChanged += gcnew System::ComponentModel::ProgressChangedEventHandler(this, &MyForm::backgroundWorker1_ProgressChanged);
+			this->backgroundWorker1->RunWorkerCompleted += gcnew System::ComponentModel::RunWorkerCompletedEventHandler(this, &MyForm::backgroundWorker1_RunWorkerCompleted);
+			// 
+			// richTextBox3
+			// 
+			this->richTextBox3->Location = System::Drawing::Point(678, 212);
+			this->richTextBox3->Name = L"richTextBox3";
+			this->richTextBox3->Size = System::Drawing::Size(109, 54);
+			this->richTextBox3->TabIndex = 24;
+			this->richTextBox3->Text = L"";
+			// 
 			// MyForm
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(746, 488);
+			this->ClientSize = System::Drawing::Size(856, 535);
+			this->Controls->Add(this->richTextBox3);
+			this->Controls->Add(this->cancel_button);
+			this->Controls->Add(this->panel2);
 			this->Controls->Add(this->richTextBox2);
 			this->Controls->Add(this->saveVideo_button);
 			this->Controls->Add(this->progressBar1);
@@ -446,6 +508,9 @@ namespace SlowMoCreator {
 			this->panel1->PerformLayout();
 			this->statusStrip1->ResumeLayout(false);
 			this->statusStrip1->PerformLayout();
+			(cli::safe_cast<System::ComponentModel::ISupportInitialize^>(this->fps_trackBar))->EndInit();
+			this->panel2->ResumeLayout(false);
+			this->panel2->PerformLayout();
 			this->ResumeLayout(false);
 			this->PerformLayout();
 
@@ -474,76 +539,64 @@ namespace SlowMoCreator {
 
 	private: System::Void CreateSlowMo_Click(System::Object^  sender, System::EventArgs^  e) {
 
+		 
 
-		
-	   
-		// Convert the videoToOpen name from the dialog in Strong^ format and convert it to std::string	to be read by cv:: methods
-		//MarshalString(videoToOpenName, videoToOpenNameStr);	  
-		
 		VideoCapture inputVideo(videoToOpenNameStr);
 		if (!inputVideo.isOpened()) {
-			MessageBox::Show(L"Error video name"); 
+			MessageBox::Show(L"Error Video file"); 
 		}
 
-		//-------------------	Naming the output video
-	 
-		//string::size_type pAt = videoToOpenNameStr.find_last_of('.');                  // Find extension point
-		//const string NAME = videoToOpenNameStr.substr(0, pAt) + argv[2][0] + ".avi";   // Form the new name with container
-		// ------------------ -		  
-
-		//string::size_type pAt = videoToOpenNameStr.find_last_of('.'); // find the extension point
-	//	name = videoToOpenNameStr.substr(0, pAt) + "GoPro" + ".avi";  // get the name to convert
-
-			
-		
-		
+	 	
 		fps =   int(inputVideo.get(CAP_PROP_FPS)); // get the frame rate of the video
 		frames_number = int(inputVideo.get(CAP_PROP_FRAME_COUNT));	   // get the total frames in the video
 	    resolution = cv::Size((int)inputVideo.get(CAP_PROP_FRAME_WIDTH), (int)inputVideo.get(CAP_PROP_FRAME_HEIGHT)); // get the resolution
-	
+	 
 		this->progressBar1->Maximum = frames_number;	  // Initilize the progress bar's maximum to the number of frames
+				
+		outputVideo.open(name, CV_FOURCC('M', 'J', 'P', 'G'), fps_wanted, resolution, true);  // Create an output video named "Name
 		
 		
-	//	name = "outputVideo.avi";
-			
-		outputVideo.open(name, CV_FOURCC('M', 'J', 'P', 'G'), 25, resolution, true);  // Create an output video named "Name
-
-
-		if (outputVideo.isOpened()) {
+		
+		if (outputVideo.isOpened())
+		{
 
 			CreateSlowMo_button->Enabled = false;
+			this->open_button->Enabled = false;
+			this->cancel_button->Enabled = true;
+			this->saveVideo_button->Enabled = false;
 			this->toolStripStatusLabel1->Text = "Creating SloMo";
-			   
+
+			backgroundWorker1->RunWorkerAsync(1);	   // Delegating the blocking operations to the background worker
+		     
 			
-			// Converting from 240fps to 25fps //////////////////////////
+			 /* ---------------------------  Converting   to selected fps by track bar  ---------------------------
+			  for (int i = 0; i < frames_number; i++) 
+				{
+					inputVideo >> source; // read frame
 
-			 
-			for (int i = 0; i < frames_number; i++) 
-			{
-				inputVideo >> source; // read frame
+					//this->progressBar1->Increment(1);
+					this->progressBar1->Value = i;  
+					if (cancel) {
+						break;
+						CreateSlowMo_button->Enabled = true;
+					}
 
-				this->progressBar1->Increment(1);
-				if (source.empty()) {
-					break;
-					CreateSlowMo_button->Enabled = true;
+					if (source.empty()) {
+						break;
+						CreateSlowMo_button->Enabled = true;
+					}
+					outputVideo << source;
 				}
-				outputVideo << source;
-			}
-			//////////////////////////////////////////////////////////// 
+				---------------------------------------------------------------------------------*/ 
+   		}
 
-		}
 		else {
 			MessageBox::Show(L"Error creating the video");
 			CreateSlowMo_button->Enabled = true;
 		}
-			 
-		MessageBox::Show(L"Finished creating the sloMo");
-		this->toolStripStatusLabel1->Text = "Done";
-  		CreateSlowMo_button->Enabled = true;
-		 
-	    	  
 
-	}
+ 		
+ 	}
 
 		 
 
@@ -554,10 +607,18 @@ namespace SlowMoCreator {
 private: System::Void timer1_Tick(System::Object^  sender, System::EventArgs^  e) {
 
 	 
-	totalFrames_textBox->Text = Convert::ToString(frames_number);	// Display the total frames of the video
-	fps_textBox->Text = Convert::ToString(fps);
-	height_textBox->Text = Convert::ToString(resolution.height);
-	width_textBox->Text = Convert::ToString(resolution.width);	 
+	   if (videoOpen) {
+		totalFrames_textBox->Text = Convert::ToString(frames_number);	// Display the total frames of the video
+		fps_textBox->Text = Convert::ToString(fps);
+		height_textBox->Text = Convert::ToString(resolution.height);
+		width_textBox->Text = Convert::ToString(resolution.width);
+
+	}
+	
+	 
+	
+	
+		 
 }
 
 
@@ -608,55 +669,150 @@ private: System::Void open_button_Click(System::Object^  sender, System::EventAr
 	else {
 		
 		this->saveVideo_button->Enabled = true;
+		videoOpen = true;
+		this->fps_trackBar->Enabled = true;
+		fps_wanted = fps_trackBar->Value;
 	}
 	
 
-
 	//string::size_type pointAt = videoToOpenNameStr.find_last_of('.'); // find the extension point
-	 
-
 	//name = videoToOpenNameStr.substr(pointAt, pAt) + "GoPro" + ".avi";
 
 }
 
 
-private: System::Void openVideoDialog_FileOk(System::Object^  sender, System::ComponentModel::CancelEventArgs^  e) {
-
-}
-
 
 
 private: System::Void saveFile_button_Click(System::Object^  sender, System::EventArgs^  e) {
 
-	MessageBox::Show(L"Please Choose a Path to save the video");
+	//MessageBox::Show(L"Please Choose a Path to save the video");
 	this->saveVideoDialog->Title = "Select where to save your SlowMo video";
 	System::Windows::Forms::DialogResult result = this->saveVideoDialog->ShowDialog();
 
+	 
 	if (result == System::Windows::Forms::DialogResult::OK)
 	{
 		videoToSaveName = saveVideoDialog->FileName;
-		Thread::Sleep(800);
+		 
 		if (File::Exists(videoToSaveName))  {
 			MessageBox::Show(L"Error! A file with the same name exists. Please, change the file's name");
+
 		}
 		else {
 
 			MarshalString(videoToSaveName, name);
 			this->CreateSlowMo_button->Enabled = true;
 		}
+		    
+	}
+	 
+}
 
 
+
+private: System::Void cancel_button_Click(System::Object^  sender, System::EventArgs^  e) {
+	cancel = true;
+	backgroundWorker1->CancelAsync();
+}
+
+
+ //*****************************************************
+ //						DO WORK
+ //*****************************************************
+
+private: System::Void backgroundWorker1_DoWork(System::Object^  sender, System::ComponentModel::DoWorkEventArgs^  e) {
+	
+	//////////////////// Converting to selected fps by track bar   ///////////////////
+	
+	for (i = 0; i < frames_number; i++)
+	{
+		inputVideo >> source; // read frame
+
+		//this->progressBar1->Value = i;
+		progress = System::Convert::ToInt32((100*(i / frames_number)));
+		backgroundWorker1->ReportProgress(progress); // report progress to the backgroud worker in order to update the UI
+		 
+		 
+		if (backgroundWorker1->CancellationPending) {	// check if the User clicked on "Cancel"
+			e->Cancel = true;
+			break;	  // Stop the convertion
+		}
+		if (source.empty()) {
+			break;
+			//	CreateSlowMo_button->Enabled = true;
+		}
+		outputVideo << source;
+
+		/*
+			if (cancel) 
+			{
+			break;
+			CreateSlowMo_button->Enabled = true;
+			}
+		*/	  
+		
 	}
 
+	//backgroundWorker1->ReportProgress(100);
+	backgroundWorker1->ReportProgress(100);
+	//e->Result;			 // WAY TO GO TOMOORW
 
-	 
 
+	//////////////////////////////////////////////////////////// 
 
 
 }
 
 
+private: System::Void backgroundWorker1_ProgressChanged(System::Object^  sender, System::ComponentModel::ProgressChangedEventArgs^  e) {
+	
+	this->progressBar1->Value = e->ProgressPercentage;
 
+	toolStripStatusLabel1->Text = "Processing..." + progressBar1->Value.ToString() + "%";
+	richTextBox3->Text = e->ProgressPercentage.ToString();
+
+	/*
+	   totalFrames_textBox->Text = Convert::ToString(frames_number);	// Display the total frames of the video
+	fps_textBox->Text = Convert::ToString(fps);						// Display the fpss of the video
+	height_textBox->Text = Convert::ToString(resolution.height);    // Display the height the video
+	width_textBox->Text = Convert::ToString(resolution.width);	    // Display the  width of the video
+	*/
+	
+}
+
+
+
+private: System::Void backgroundWorker1_RunWorkerCompleted(System::Object^  sender, System::ComponentModel::RunWorkerCompletedEventArgs^  e) {
+	 // in case the background process is finished with a cancel
+	if (e->Cancelled) 
+	{
+		toolStripStatusLabel1->Text = "Task Cancelled";
+	}
+
+	// check if an error occurred in the backgroud process
+
+	else if (e->Error != nullptr)
+	{ 
+		toolStripStatusLabel1->Text = "Error while creating the SlowMo";
+
+	}
+	else 
+	{	// task completed normally
+		toolStripStatusLabel1->Text = "SlowMo Created successfully!";
+		this->cancel_button->Enabled = false;
+		MessageBox::Show(L"Finished creating the sloMo");
+		this->toolStripStatusLabel1->Text = "Done";
+		CreateSlowMo_button->Enabled = true;   	
+		 
+		
+
+	}
+
+	
+
+
+
+}
 
 
 

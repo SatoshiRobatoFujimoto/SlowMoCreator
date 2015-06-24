@@ -1,0 +1,28 @@
+﻿backGroundWorker commit
+
+Added the background worker but theer's still a problem, progress stops at 100
+# Please enter the commit message for your changes. Lines starting
+# with '#' will be ignored, and an empty message aborts the commit.
+# On branch backgroundWorker
+# Changes to be committed:
+#	deleted:    Debug/GoPro.mp4
+#	modified:   Debug/SlowMoCreator.exe
+#	modified:   Debug/SlowMoCreator.pdb
+#	modified:   SlowMoCreator.sdf
+#	modified:   SlowMoCreator.v12.suo
+#	modified:   SlowMoCreator/Debug/.NETFramework,Version=v4.5.AssemblyAttributes.obj
+#	modified:   SlowMoCreator/Debug/AboutForm.obj
+#	modified:   SlowMoCreator/Debug/MyForm.obj
+#	deleted:    SlowMoCreator/Debug/SlowMoCreator.Build.CppClean.log
+#	modified:   SlowMoCreator/Debug/SlowMoCreator.log
+#	modified:   SlowMoCreator/Debug/SlowMoCreator.tlog/SlowMoCreator.write.1u.tlog
+#	modified:   SlowMoCreator/Debug/SlowMoCreator.vcxproj.GenerateResource.Cache
+#	modified:   SlowMoCreator/Debug/stdafx.obj
+#	modified:   SlowMoCreator/Debug/variables.obj
+#	modified:   SlowMoCreator/Debug/vc120.pdb
+#	modified:   SlowMoCreator/MyForm.h
+#	modified:   SlowMoCreator/MyForm.resx
+#	modified:   SlowMoCreator/variables.cpp
+#	modified:   SlowMoCreator/variables.h
+#
+
